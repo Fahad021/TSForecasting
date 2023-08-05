@@ -29,10 +29,7 @@ def convert_tsf_to_dataframe(
 
     with open(full_file_path_and_name, "r", encoding="cp1252") as file:
         for line in file:
-            # Strip white space from start/end of line
-            line = line.strip()
-
-            if line:
+            if line := line.strip():
                 if line.startswith("@"):  # Read meta-data
                     if not line.startswith("@data"):
                         line_content = line.split(" ")
@@ -61,15 +58,15 @@ def convert_tsf_to_dataframe(
                             elif line.startswith("@equallength"):
                                 contain_equal_length = bool(strtobool(line_content[1]))
 
-                    else:
-                        if len(col_names) == 0:
-                            raise Exception(
-                                "Missing attribute section. Attribute section must come before data."
-                            )
-
+                    elif col_names:
                         found_data_tag = True
+                    else:
+                        raise Exception(
+                            "Missing attribute section. Attribute section must come before data."
+                        )
+
                 elif not line.startswith("#"):
-                    if len(col_names) == 0:
+                    if not col_names:
                         raise Exception(
                             "Missing attribute section. Attribute section must come before data."
                         )
@@ -138,7 +135,7 @@ def convert_tsf_to_dataframe(
 
         if line_count == 0:
             raise Exception("Empty file.")
-        if len(col_names) == 0:
+        if not col_names:
             raise Exception("Missing attribute section.")
         if not found_data_section:
             raise Exception("Missing series information under data section.")

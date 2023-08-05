@@ -65,8 +65,6 @@ def get_deep_nn_forecasts(dataset_name, lag, input_file_name, method, external_f
     test_series_list = []
     train_series_full_list = []
     test_series_full_list = []
-    final_forecasts = []
-
     if frequency is not None:
         freq = FREQUENCY_MAP[frequency]
         seasonality = SEASONALITY_MAP[frequency]
@@ -96,7 +94,7 @@ def get_deep_nn_forecasts(dataset_name, lag, input_file_name, method, external_f
 
         # Creating training and test series. Test series will be only used during evaluation
         train_series_data = series_data[:len(series_data) - forecast_horizon]
-        test_series_data = series_data[(len(series_data) - forecast_horizon) : len(series_data)]
+        test_series_data = series_data[len(series_data) - forecast_horizon:]
 
         train_series_list.append(train_series_data)
         test_series_list.append(test_series_data)
@@ -142,10 +140,7 @@ def get_deep_nn_forecasts(dataset_name, lag, input_file_name, method, external_f
     # Time series predictions
     forecasts = list(forecast_it)
 
-    # Get median (0.5 quantile) of the 100 sample forecasts as final point forecasts
-    for f in forecasts:
-        final_forecasts.append(f.median)
-
+    final_forecasts = [f.median for f in forecasts]
     if integer_conversion:
         final_forecasts = np.round(final_forecasts)
 
